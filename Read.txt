@@ -1,0 +1,6 @@
+-> https://myaccount.google.com/lesssecureapps
+-> Go to the above link and allow less secure apps ON
+-> Create .env file and fill details as in below
+
+EMAIL = example@gmail.com
+PASSWORD = XXXXXX

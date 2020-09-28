@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.8.2/css/all.css"
+    />
+    <script
+      src="https://code.jquery.com/jquery-1.12.4.min.js"
+      integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+      crossorigin="anonymous"
+    ></script>
+    <link rel="stylesheet" href="./form.css" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="form">
+      <div class="container">
+        <div class="text inner-text text-center">
+          <h1>CONTACT US</h1>
+        </div>
+        <div class="container contact-form-container">
+          <div class="row">
+            <div class="col-md-12">
+              <form class="contact-form">
+                <!-- First Row -->
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group position-relative">
+                      <input
+                        autocomplete="off"
+                        type="text"
+                        name="name"
+                        id="name"
+                        class="form-control"
+                        placeholder="Name"
+                      />
+                      <i></i>
+                      <p>*Enter your name</p>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group position-relative">
+                      <input
+                        autocomplete="off"
+                        type="text"
+                        name="email"
+                        id="email"
+                        class="form-control"
+                        placeholder="Email"
+                      />
+                      <i class="fas validate-icon"></i>
+                      <p>*Enter your Email</p>
+                    </div>
+                  </div>
+                </div>
+                <!-- Second Row -->
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group position-relative">
+                      <input
+                        autocomplete="off"
+                        type="text"
+                        name="phone"
+                        id="phone"
+                        class="form-control"
+                        placeholder="Phone"
+                      />
+                      <i class="fas validate-icon"></i>
+                      <p>*Enter your Phone</p>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <select class="form-control custom-select" id="project">
+                        <option>UI/UX</option>
+                        <option>Netework Marketing</option>
+                        <option>Photography</option>
+                      </select>
+                      <p></p>
+                    </div>
+                  </div>
+                </div>
+                <!-- Third Row -->
+                <div class="row">
+                  <div class="col">
+                    <textarea
+                      name="descrition"
+                      class="form-control py-3"
+                      placeholder="Description of your project"
+                      id="description"
+                    ></textarea>
+                    <i></i>
+                    <p class="ml-2">*Enter some description</p>
+                  </div>
+                </div>
+                <!-- Submit button -->
+                <div class="text-right container">
+                  <button
+                    class="btn btn-three mb-5"
+                    type="submit"
+                    id="submit-button"
+                  >
+                    <i class="fas fa-share ml-2"></i>
+                    Send
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+<script>
+  const description = document.getElementById("description");
+  const input_fields = {
+    name: /^[a-z]{3,100}$/i,
+    email: /^([a-z\d\.-]+)@([a-z\d-]+)\.([a-z]{2,8})(\.[a-z]{2,8})?$/,
+    phone: /^\d{10}$/,
+  };
+  const validObject = {
+    name: false,
+    email: false,
+    phone: false,
+    description: false,
+  };
+  let keys = document.querySelectorAll("input");
+  const submitButton = document.getElementById("submit-button");
+  const name = document.getElementById("name");
+  const phone = document.getElementById("phone");
+  const email = document.getElementById("email");
+  const project = document.getElementById("project");
+  const validate = (field, regex) => {
+    if (regex.test(field.value)) {
+      field.nextElementSibling.className =
+        "fas fa-check-circle validate-icon valid";
+      validObject[field.attributes.name.value] = true;
+    } else {
+      field.nextElementSibling.className =
+        "fas fa-times-circle validate-icon invalid";
+      validObject[field.attributes.name.value] = false;
+    }
+  };
+  keys.forEach((item) =>
+    item.addEventListener("keyup", (e) => {
+      validate(e.target, input_fields[e.target.attributes.name.value]);
+    })
+  );
+
+  const send = async () => {
+    const response = await fetch("/sendmail", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: name.value,
+        email: email.value,
+        phone: phone.value,
+        project: project.value,
+        description: description.value,
+      }),
+    });
+    const data = await response.json();
+    console.log(data);
+  };
+  submitButton.addEventListener("click", (e) => {
+    e.preventDefault();
+    validObject["description"] = description.value.length < 10 ? false : true;
+    for (i in validObject) {
+      if (!validObject[i]) {
+        document.getElementById(
+          i
+        ).nextElementSibling.nextElementSibling.className = "warning";
+      } else {
+        document
+          .getElementById(i)
+          .nextElementSibling.nextElementSibling.classList.remove("warning");
+      }
+    }
+    if (
+      validObject["name"] &&
+      validObject["phone"] &&
+      validObject["email"] &&
+      validObject["description"]
+    ) {
+      send();
+    }
+  });
+</script>
